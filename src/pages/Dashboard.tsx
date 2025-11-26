@@ -30,7 +30,7 @@ const mockCattleData = [
     id: "C001",
     name: "Bella",
     temperature: 38.5,
-    location: { lat: 40.7128, lng: -74.0060 },
+    location: { lat: 30.3327, lng: 76.3707 },
     rfidTag: "RF001234",
     status: "normal",
     lastUpdate: "2 mins ago"
