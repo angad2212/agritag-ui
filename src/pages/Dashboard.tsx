@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Video, User, Phone, MapPin, Thermometer, Tag } from "lucide-react";
+import { useCattleDeviceData } from "@/hooks/useCattleDeviceData";
 
 // Mock cattle data - replace with Firebase data
 /*
@@ -101,6 +102,8 @@ const getCardBorderColor = (status: string) => {
 };
 
 const Dashboard = () => {
+  const { data: deviceData, loading: deviceLoading } = useCattleDeviceData();
+
   const handleVetCall = (cattleId: string, cattleName: string) => {
     // Mock veterinarian contact
     const vetPhone = "+1-555-VET-HELP";
@@ -109,6 +112,19 @@ const Dashboard = () => {
     
     window.open(`mailto:vet@example.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`);
     alert(`Veterinarian contacted!\nPhone: ${vetPhone}\nEmail sent with cattle details.`);
+  };
+
+  // Update Bella's data with API data if available
+  const getCattleDisplayData = (cattle: typeof mockCattleData[0]) => {
+    if (cattle.id === "C001" && deviceData) {
+      return {
+        ...cattle,
+        temperature: deviceData.temperature,
+        location: { lat: deviceData.latitude, lng: deviceData.longitude },
+        rfidTag: deviceData.rfid_uid || cattle.rfidTag,
+      };
+    }
+    return cattle;
   };
 
   return (
@@ -143,35 +159,56 @@ const Dashboard = () => {
 
         {/* Cattle Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {mockCattleData.map((cattle) => (
-            <Card key={cattle.id} className={`cursor-pointer hover:shadow-lg transition-all duration-200 border-l-4 ${getCardBorderColor(cattle.status)} bg-card/80 backdrop-blur-sm`}>
-              <CardHeader className="pb-3">
-                <div className="flex justify-between items-start">
-                  <CardTitle className="text-lg font-semibold text-card-foreground">
-                    {cattle.name}
-                  </CardTitle>
-                  <Badge className={getStatusColor(cattle.status)}>
-                    {cattle.status}
-                  </Badge>
-                </div>
-                <p className="text-sm text-muted-foreground">ID: {cattle.id}</p>
-              </CardHeader>
-              <CardContent className="space-y-3">
-                <div className="flex items-center gap-2 text-sm">
-                  <Thermometer className="h-4 w-4 text-muted-foreground" />
-                  <span className="text-card-foreground">{cattle.temperature}°C</span>
-                </div>
-                <div className="flex items-center gap-2 text-sm">
-                  <MapPin className="h-4 w-4 text-muted-foreground" />
-                  <span className="text-card-foreground">
-                    {cattle.location.lat.toFixed(4)}, {cattle.location.lng.toFixed(4)}
-                  </span>
-                </div>
-                <div className="flex items-center gap-2 text-sm">
-                  <Tag className="h-4 w-4 text-muted-foreground" />
-                  <span className="text-card-foreground">{cattle.rfidTag}</span>
-                </div>
-                <p className="text-xs text-muted-foreground">Updated {cattle.lastUpdate}</p>
+          {mockCattleData.map((cattle) => {
+            const displayData = getCattleDisplayData(cattle);
+            const isBella = cattle.id === "C001";
+            const isLoading = isBella && deviceLoading;
+            
+            return (
+              <Card key={cattle.id} className={`cursor-pointer hover:shadow-lg transition-all duration-200 border-l-4 ${getCardBorderColor(cattle.status)} bg-card/80 backdrop-blur-sm`}>
+                <CardHeader className="pb-3">
+                  <div className="flex justify-between items-start">
+                    <CardTitle className="text-lg font-semibold text-card-foreground">
+                      {cattle.name}
+                    </CardTitle>
+                    <Badge className={getStatusColor(cattle.status)}>
+                      {cattle.status}
+                    </Badge>
+                  </div>
+                  <p className="text-sm text-muted-foreground">ID: {cattle.id}</p>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  <div className="flex items-center gap-2 text-sm">
+                    <Thermometer className="h-4 w-4 text-muted-foreground" />
+                    <span className="text-card-foreground">
+                      {isLoading 
+                        ? 'Loading...' 
+                        : isBella && deviceData?.temperature
+                          ? `${deviceData.temperature.toFixed(1)}°C`
+                          : `${displayData.temperature}°C`}
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-2 text-sm">
+                    <MapPin className="h-4 w-4 text-muted-foreground" />
+                    <span className="text-card-foreground">
+                      {isLoading 
+                        ? 'Loading...' 
+                        : isBella && deviceData?.latitude && deviceData?.longitude
+                          ? `${deviceData.latitude.toFixed(4)}, ${deviceData.longitude.toFixed(4)}`
+                          : `${displayData.location.lat.toFixed(4)}, ${displayData.location.lng.toFixed(4)}`}
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-2 text-sm">
+                    <Tag className="h-4 w-4 text-muted-foreground" />
+                    <span className="text-card-foreground">
+                      {isLoading 
+                        ? 'Loading...' 
+                        : isBella && deviceData?.rfid_uid
+                          ? deviceData.rfid_uid
+                          : displayData.rfidTag}
+                    </span>
+                  </div>
+                  <p className="text-xs text-muted-foreground">Updated {cattle.lastUpdate}</p>
                 
                 <div className="flex gap-2 pt-2">
                   <Link to={`/cattle/${cattle.id}`} className="flex-1">
@@ -193,7 +230,8 @@ const Dashboard = () => {
                 </div>
               </CardContent>
             </Card>
-          ))}
+            );
+          })}
         </div>
       </main>
     </div>

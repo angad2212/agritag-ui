@@ -3,17 +3,22 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { ArrowLeft, Phone, Mail, MapPin, Thermometer, Tag, Clock, Video } from "lucide-react";
+import { useCattleDeviceData } from "@/hooks/useCattleDeviceData";
 
 const CattleDetail = () => {
   const { id } = useParams();
+  const { data: deviceData, loading, error } = useCattleDeviceData();
 
   // Mock cattle data - replace with Firebase fetch by ID
   const cattleData = {
     id: id || "C001",
     name: "Bella",
-    temperature: 38.5,
-    location: { lat: 30.3327, lng: 76.3707 },
-    rfidTag: "RF001234",
+    temperature: deviceData?.temperature ?? 0,
+    location: { 
+      lat: deviceData?.latitude ?? 0, 
+      lng: deviceData?.longitude ?? 0 
+    },
+    rfidTag: deviceData?.rfid_uid || "",
     status: "normal",
     lastUpdate: "2 mins ago",
     breed: "Holstein",
@@ -101,25 +106,37 @@ const CattleDetail = () => {
                 <CardDescription>Real-time monitoring data</CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                  <div className="text-center p-4 bg-accent/20 rounded-lg">
-                    <div className="text-2xl font-bold text-primary">{cattleData.temperature}°C</div>
-                    <div className="text-sm text-muted-foreground">Temperature</div>
-                    {cattleData.temperature > 39.5 && (
-                      <div className="text-xs text-alert mt-1">Above normal</div>
-                    )}
-                  </div>
-                  <div className="text-center p-4 bg-accent/20 rounded-lg">
-                    <div className="text-lg font-semibold text-primary">
-                      {cattleData.location.lat.toFixed(4)}, {cattleData.location.lng.toFixed(4)}
+                {loading ? (
+                  <div className="text-center py-8 text-muted-foreground">Loading data...</div>
+                ) : error ? (
+                  <div className="text-center py-8 text-destructive">Error: {error}</div>
+                ) : (
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div className="text-center p-4 bg-accent/20 rounded-lg">
+                      <div className="text-2xl font-bold text-primary">
+                        {deviceData?.temperature ? `${deviceData.temperature.toFixed(1)}°C` : 'N/A'}
+                      </div>
+                      <div className="text-sm text-muted-foreground">Temperature</div>
+                      {deviceData?.temperature && deviceData.temperature > 39.5 && (
+                        <div className="text-xs text-alert mt-1">Above normal</div>
+                      )}
                     </div>
-                    <div className="text-sm text-muted-foreground">GPS Location</div>
+                    <div className="text-center p-4 bg-accent/20 rounded-lg">
+                      <div className="text-lg font-semibold text-primary">
+                        {deviceData?.latitude && deviceData?.longitude 
+                          ? `${deviceData.latitude.toFixed(4)}, ${deviceData.longitude.toFixed(4)}`
+                          : 'N/A'}
+                      </div>
+                      <div className="text-sm text-muted-foreground">GPS Location</div>
+                    </div>
+                    <div className="text-center p-4 bg-accent/20 rounded-lg">
+                      <div className="text-lg font-semibold text-primary">
+                        {deviceData?.rfid_uid || 'N/A'}
+                      </div>
+                      <div className="text-sm text-muted-foreground">RFID Tag</div>
+                    </div>
                   </div>
-                  <div className="text-center p-4 bg-accent/20 rounded-lg">
-                    <div className="text-lg font-semibold text-primary">{cattleData.rfidTag}</div>
-                    <div className="text-sm text-muted-foreground">RFID Tag</div>
-                  </div>
-                </div>
+                )}
               </CardContent>
             </Card>
 
@@ -138,7 +155,11 @@ const CattleDetail = () => {
                     <MapPin className="h-12 w-12 text-primary mx-auto mb-2" />
                     <p className="text-muted-foreground">Interactive map view</p>
                     <p className="text-sm text-muted-foreground">
-                      Lat: {cattleData.location.lat}, Lng: {cattleData.location.lng}
+                      {deviceData?.latitude && deviceData?.longitude 
+                        ? `Lat: ${deviceData.latitude.toFixed(4)}, Lng: ${deviceData.longitude.toFixed(4)}`
+                        : loading 
+                          ? 'Loading location...'
+                          : 'Location data unavailable'}
                     </p>
                   </div>
                 </div>
