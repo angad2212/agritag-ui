@@ -8,13 +8,19 @@ interface CattleDeviceData {
   timestamp: number;
 }
 
+interface RfidData {
+  rfid_uid: string;
+  timestamp: number;
+}
+
 interface UseCattleDeviceDataReturn {
   data: CattleDeviceData | null;
   loading: boolean;
   error: string | null;
 }
 
-const API_URL = 'https://agritag-5283e-default-rtdb.firebaseio.com/devices/agritag-001/latest.json';
+const DEVICE_API_URL = 'https://agritag-5283e-default-rtdb.firebaseio.com/devices/agritag-001/latest.json';
+const RFID_API_URL = 'https://agritag-rfid-default-rtdb.firebaseio.com/devices/rfid-board/latest.json';
 
 export const useCattleDeviceData = (): UseCattleDeviceDataReturn => {
   const [data, setData] = useState<CattleDeviceData | null>(null);
@@ -26,14 +32,36 @@ export const useCattleDeviceData = (): UseCattleDeviceDataReturn => {
       try {
         setLoading(true);
         setError(null);
-        const response = await fetch(API_URL);
         
-        if (!response.ok) {
-          throw new Error(`Failed to fetch: ${response.statusText}`);
+        // Fetch both APIs in parallel
+        const [deviceResponse, rfidResponse] = await Promise.all([
+          fetch(DEVICE_API_URL),
+          fetch(RFID_API_URL)
+        ]);
+        
+        if (!deviceResponse.ok) {
+          throw new Error(`Failed to fetch device data: ${deviceResponse.statusText}`);
         }
         
-        const jsonData: CattleDeviceData = await response.json();
-        setData(jsonData);
+        const deviceData: CattleDeviceData = await deviceResponse.json();
+        let rfidData: RfidData | null = null;
+        
+        // RFID API is optional - don't fail if it errors
+        try {
+          if (rfidResponse.ok) {
+            rfidData = await rfidResponse.json();
+          }
+        } catch (rfidErr) {
+          console.warn('RFID API call failed, continuing without RFID data:', rfidErr);
+        }
+        
+        // Merge RFID data from separate API if available
+        const mergedData: CattleDeviceData = {
+          ...deviceData,
+          rfid_uid: rfidData?.rfid_uid || deviceData.rfid_uid || '',
+        };
+        
+        setData(mergedData);
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Failed to fetch cattle data');
         console.error('Error fetching cattle device data:', err);
