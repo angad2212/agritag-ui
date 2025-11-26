@@ -36,11 +36,11 @@ const CattleDetail = () => {
   };
 
   const handleVetCall = () => {
-    const vetPhone = "+1-555-VET-HELP";
+    const vetPhone = "7625836001";
     const subject = `Attention needed: Cattle ${cattleData.name} (${cattleData.id})`;
     const body = `Dear Veterinarian,\n\nCattle ${cattleData.name} with ID ${cattleData.id} may need attention.\n\nCurrent Status: ${cattleData.status}\nTemperature: ${cattleData.temperature}°C\nLocation: ${cattleData.location.lat}, ${cattleData.location.lng}\nRFID: ${cattleData.rfidTag}\n\nPlease contact us when convenient.\n\nThank you,\nAgriTag Team`;
     
-    window.open(`mailto:vet@example.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`);
+    window.open(`mailto:tmittal_be22@thapar.edu?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`);
     alert(`Veterinarian contacted!\nPhone: ${vetPhone}\nEmail sent with cattle details.`);
   };
 
