@@ -11,8 +11,23 @@ const Login = () => {
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
+    // Hit the login API endpoint
+    try {
+      await fetch("http://localhost:3000/api/auth/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          email,
+          password,
+        }),
+      });
+    } catch (error) {
+      console.error("Login API call failed:", error);
+    }
     // Mock login - in real app, authenticate with Firebase
     navigate("/dashboard");
   };
