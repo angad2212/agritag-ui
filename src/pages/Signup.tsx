@@ -13,40 +13,10 @@ const Signup = () => {
   const [farmName, setFarmName] = useState("");
   const navigate = useNavigate();
 
-  const handleSignup = async (e: React.FormEvent) => {
+  const handleSignup = (e: React.FormEvent) => {
     e.preventDefault();
-    
-    // Hit the signup API endpoint
-    try {
-      const response = await fetch("http://localhost:3000/api/auth/signup", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          fullName: name,
-          farmName: farmName,
-          email: email,
-          password: password,
-        }),
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        console.error("Signup API call failed:", response.status, errorData);
-        alert(`Signup failed: ${errorData.message || response.statusText}`);
-        return;
-      }
-
-      const data = await response.json();
-      console.log("Signup successful:", data);
-      
-      // Navigate only after successful API call
-      navigate("/dashboard");
-    } catch (error) {
-      console.error("Signup API call error:", error);
-      alert("Failed to connect to server. Please try again.");
-    }
+    // Mock signup - in real app, create account with Firebase
+    navigate("/dashboard");
   };
 
   return (
