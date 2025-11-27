@@ -13,9 +13,10 @@ const Login = () => {
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
+    
     // Hit the login API endpoint
     try {
-      await fetch("http://localhost:3000/api/auth/login", {
+      const response = await fetch("http://localhost:3000/api/auth/login", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -25,11 +26,23 @@ const Login = () => {
           password,
         }),
       });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        console.error("Login API call failed:", response.status, errorData);
+        alert(`Login failed: ${errorData.message || response.statusText}`);
+        return;
+      }
+
+      const data = await response.json();
+      console.log("Login successful:", data);
+      
+      // Navigate only after successful API call
+      navigate("/dashboard");
     } catch (error) {
-      console.error("Login API call failed:", error);
+      console.error("Login API call error:", error);
+      alert("Failed to connect to server. Please try again.");
     }
-    // Mock login - in real app, authenticate with Firebase
-    navigate("/dashboard");
   };
 
   return (
