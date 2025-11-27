@@ -16,13 +16,10 @@ const Signup = () => {
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    console.log("Signup attempt started:", { fullName: name, farmName, email });
-    
     // Hit the signup API endpoint
     try {
-      const response = await fetch("/api/auth/signup", {
+      const response = await fetch("http://localhost:3000/api/auth/signup", {
         method: "POST",
-        mode: "cors",
         headers: {
           "Content-Type": "application/json",
         },
@@ -33,8 +30,6 @@ const Signup = () => {
           password: password,
         }),
       });
-
-      console.log("Response status:", response.status, response.statusText);
 
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
@@ -48,17 +43,9 @@ const Signup = () => {
       
       // Navigate only after successful API call
       navigate("/dashboard");
-    } catch (error: any) {
+    } catch (error) {
       console.error("Signup API call error:", error);
-      
-      // Check for CORS or network errors
-      if (error.name === "TypeError" && error.message.includes("fetch")) {
-        alert("CORS Error: The server may not be running or CORS is not configured. Check that your backend server is running on http://localhost:3000");
-      } else if (error.message) {
-        alert(`Connection error: ${error.message}`);
-      } else {
-        alert("Failed to connect to server. Please ensure the backend server is running on http://localhost:3000");
-      }
+      alert("Failed to connect to server. Please try again.");
     }
   };
 

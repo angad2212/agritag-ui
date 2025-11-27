@@ -14,13 +14,10 @@ const Login = () => {
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    console.log("Login attempt started:", { email });
-    
     // Hit the login API endpoint
     try {
-      const response = await fetch("/api/auth/login", {
+      const response = await fetch("http://localhost:3000/api/auth/login", {
         method: "POST",
-        mode: "cors",
         headers: {
           "Content-Type": "application/json",
         },
@@ -29,8 +26,6 @@ const Login = () => {
           password,
         }),
       });
-
-      console.log("Response status:", response.status, response.statusText);
 
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
@@ -44,17 +39,9 @@ const Login = () => {
       
       // Navigate only after successful API call
       navigate("/dashboard");
-    } catch (error: any) {
+    } catch (error) {
       console.error("Login API call error:", error);
-      
-      // Check for CORS or network errors
-      if (error.name === "TypeError" && error.message.includes("fetch")) {
-        alert("CORS Error: The server may not be running or CORS is not configured. Check that your backend server is running on http://localhost:3000");
-      } else if (error.message) {
-        alert(`Connection error: ${error.message}`);
-      } else {
-        alert("Failed to connect to server. Please ensure the backend server is running on http://localhost:3000");
-      }
+      alert("Failed to connect to server. Please try again.");
     }
   };
 
