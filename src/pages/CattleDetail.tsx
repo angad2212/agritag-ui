@@ -4,15 +4,42 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { ArrowLeft, Phone, Mail, MapPin, Thermometer, Tag, Clock, Video } from "lucide-react";
 import { useCattleDeviceData } from "@/hooks/useCattleDeviceData";
+import { openDemoVideo } from "@/constants/demo";
+
+const getHindiName = (name: string): string => {
+  const hindiNames: Record<string, string> = {
+    "Bella": "बेला",
+    "Duke": "ड्यूक",
+    "Luna": "लूना",
+    "Max": "मैक्स",
+    "Daisy": "डेज़ी",
+    "Rocky": "रॉकी"
+  };
+  return hindiNames[name] || "";
+};
+
+const getCattleNameById = (id: string): string => {
+  const cattleNames: Record<string, string> = {
+    "C001": "Bella",
+    "C002": "Duke",
+    "C003": "Luna",
+    "C004": "Max",
+    "C005": "Daisy",
+    "C006": "Rocky"
+  };
+  return cattleNames[id] || "Unknown";
+};
 
 const CattleDetail = () => {
   const { id } = useParams();
   const { data: deviceData, loading, error } = useCattleDeviceData();
+  
+  const cattleName = getCattleNameById(id || "C001");
 
   // Mock cattle data - replace with Firebase fetch by ID
   const cattleData = {
     id: id || "C001",
-    name: "Bella",
+    name: cattleName,
     temperature: deviceData?.temperature ?? 0,
     location: { 
       lat: deviceData?.latitude ?? 0, 
@@ -64,7 +91,13 @@ const CattleDetail = () => {
               </Link>
               <h1 className="text-2xl font-bold text-primary">AgriTag</h1>
             </div>
-            <Button variant="outline" size="sm" className="gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              className="gap-2"
+              onClick={openDemoVideo}
+              type="button"
+            >
               <Video className="h-4 w-4" />
               Demo
             </Button>
@@ -78,7 +111,12 @@ const CattleDetail = () => {
         <div className="mb-8">
           <div className="flex justify-between items-start">
             <div>
-              <h2 className="text-3xl font-bold text-foreground mb-2">{cattleData.name}</h2>
+              <h2 className="text-3xl font-bold text-foreground mb-2">
+                {cattleData.name}
+                {getHindiName(cattleData.name) && (
+                  <span className="ml-2 text-2xl font-normal">({getHindiName(cattleData.name)})</span>
+                )}
+              </h2>
               <p className="text-muted-foreground">Cattle ID: {cattleData.id}</p>
             </div>
             <div className="flex items-center gap-4">
@@ -101,7 +139,7 @@ const CattleDetail = () => {
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <Thermometer className="h-5 w-5" />
-                  Current Status
+                  Current Status <span className="text-muted-foreground text-base font-normal">(वर्तमान स्थिति)</span>
                 </CardTitle>
                 <CardDescription>Real-time monitoring data</CardDescription>
               </CardHeader>
@@ -145,7 +183,7 @@ const CattleDetail = () => {
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <MapPin className="h-5 w-5" />
-                  Location
+                  Location <span className="text-muted-foreground text-base font-normal">(स्थान)</span>
                 </CardTitle>
                 <CardDescription>Cattle position on farm</CardDescription>
               </CardHeader>
@@ -171,7 +209,7 @@ const CattleDetail = () => {
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <Clock className="h-5 w-5" />
-                  Health History
+                  Health History <span className="text-muted-foreground text-base font-normal">(स्वास्थ्य इतिहास)</span>
                 </CardTitle>
                 <CardDescription>Recent health events and checkups</CardDescription>
               </CardHeader>

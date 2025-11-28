@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Video } from "lucide-react";
+import { openDemoVideo } from "@/constants/demo";
 
 const Signup = () => {
   const [name, setName] = useState("");
@@ -24,7 +25,7 @@ const Signup = () => {
       <div className="w-full max-w-md space-y-6">
         {/* Demo Button */}
         <div className="flex justify-center">
-          <Button variant="outline" size="sm" className="gap-2">
+          <Button variant="outline" size="sm" className="gap-2" onClick={openDemoVideo} type="button">
             <Video className="h-4 w-4" />
             Demo
           </Button>

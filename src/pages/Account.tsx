@@ -4,6 +4,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { ArrowLeft, User, Mail, MapPin, Phone, Video } from "lucide-react";
+import { openDemoVideo } from "@/constants/demo";
 
 const Account = () => {
   // Mock user data - replace with Firebase user data
@@ -32,7 +33,13 @@ const Account = () => {
               </Link>
               <h1 className="text-2xl font-bold text-primary">AgriTag</h1>
             </div>
-            <Button variant="outline" size="sm" className="gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              className="gap-2"
+              onClick={openDemoVideo}
+              type="button"
+            >
               <Video className="h-4 w-4" />
               Demo
             </Button>

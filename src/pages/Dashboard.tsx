@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Video, User, Phone, MapPin, Thermometer, Tag } from "lucide-react";
 import { useCattleDeviceData } from "@/hooks/useCattleDeviceData";
+import { openDemoVideo } from "@/constants/demo";
 
 // Mock cattle data - replace with Firebase data
 /*
@@ -101,6 +102,18 @@ const getCardBorderColor = (status: string) => {
   }
 };
 
+const getHindiName = (name: string): string => {
+  const hindiNames: Record<string, string> = {
+    "Bella": "बेला",
+    "Duke": "ड्यूक",
+    "Luna": "लूना",
+    "Max": "मैक्स",
+    "Daisy": "डेज़ी",
+    "Rocky": "रॉकी"
+  };
+  return hindiNames[name] || "";
+};
+
 const Dashboard = () => {
   const { data: deviceData, loading: deviceLoading } = useCattleDeviceData();
 
@@ -135,7 +148,13 @@ const Dashboard = () => {
           <div className="flex justify-between items-center h-16">
             <h1 className="text-2xl font-bold text-primary">AgriTag</h1>
             <div className="flex items-center gap-4">
-              <Button variant="outline" size="sm" className="gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                className="gap-2"
+                onClick={openDemoVideo}
+                type="button"
+              >
                 <Video className="h-4 w-4" />
                 Demo
               </Button>
@@ -170,6 +189,9 @@ const Dashboard = () => {
                   <div className="flex justify-between items-start">
                     <CardTitle className="text-lg font-semibold text-card-foreground">
                       {cattle.name}
+                      {getHindiName(cattle.name) && (
+                        <span className="ml-2 text-base font-normal">({getHindiName(cattle.name)})</span>
+                      )}
                     </CardTitle>
                     <Badge className={getStatusColor(cattle.status)}>
                       {cattle.status}
